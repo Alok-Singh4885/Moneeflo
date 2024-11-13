@@ -1,0 +1,13 @@
+{
+    "host": "localhost",
+    "port": 27017,
+    "database": "Monefflo",
+    "username": "root", 
+    "password": "",
+    "dialect": "mongodb",
+    "options": {
+      "useNewUrlParser": true,
+      "useUnifiedTopology": true
+    }
+}
+  
