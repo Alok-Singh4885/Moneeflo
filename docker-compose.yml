@@ -1,28 +1,42 @@
 services:
-  backend:
-    build: .  
-    ports:
-      - "3000:3000"
-    depends_on:
-      - redis
-      - mongodb
+  app:
+    build: .
+    container_name: moneeflo-app
     environment:
-      - MONGO_URL=mongodb://mongodb:27017/
-      - MONGO_DB_NAME=Monefflo
-
-  redis:
-    image: "redis:alpine"
+      - NODE_ENV=production
+      - PORT=4001
+      - MONGODB_URI=mongodb://127.0.0.1:27017/Monefflo
     ports:
-      - "6379:6379"
+      - "4001:4001"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - moneeflo-network
+    restart: unless-stopped
 
   mongodb:
-    image: "mongo:latest"
-    environment:
-      - MONGO_INITDB_DATABASE=Monefflo
+    image: mongo:latest
+    container_name: mongodb
     ports:
       - "27017:27017"
     volumes:
-      - mongo-vol:/data/db
+      - mongo-data:/data/db
+    networks:
+      - moneeflo-network
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+networks:
+  moneeflo-network:
+    name: moneeflo-network
+    driver: bridge
 
 volumes:
-  mongo-vol:
+  mongo-data:
+    name: moneeflo-mongodb-data
